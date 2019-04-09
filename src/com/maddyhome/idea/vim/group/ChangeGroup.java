@@ -324,13 +324,27 @@ public class ChangeGroup {
     final Register register = VimPlugin.getRegister().getRegister(key);
     if (register != null) {
       final String text = register.getText();
-      if (text != null) {
-        final int length = text.length();
-        for (int i = 0; i < length; i++) {
-          processKey(editor, context, KeyStroke.getKeyStroke(text.charAt(i)));
-        }
-        return true;
+      insertText(editor, context, text);
+    }
+
+    return false;
+  }
+
+  /**
+   * Inserts the contents of the specified register
+   *
+   * @param editor  The editor to insert the text into
+   * @param context The data context
+   * @param text    The text to insert
+   * @return true if able to insert the text, false if not
+   */
+  public boolean insertText(@NotNull Editor editor, @NotNull DataContext context, String text) {
+    if (text != null) {
+      final int length = text.length();
+      for (int i = 0; i < length; i++) {
+        processKey(editor, context, KeyStroke.getKeyStroke(text.charAt(i)));
       }
+      return true;
     }
 
     return false;

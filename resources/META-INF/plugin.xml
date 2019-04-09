@@ -374,5 +374,14 @@
     <!-- Keys -->
     <action id="VimShortcutKeyAction" class="com.maddyhome.idea.vim.action.VimShortcutKeyAction" text="Shortcuts"/>
     <action id="VimOperatorAction" class="com.maddyhome.idea.vim.action.change.OperatorAction" text="Operator"/>
+
+    <!-- Speech -->
+    <group id="SpeechVIM.SpeakMenu" text="Speak" description="Voice recognition menu">
+      <add-to-group group-id="MainMenu" anchor="last"/>
+      <action id="io.github.keenon.voicecode.Speaking" class="io.github.keenon.voicecode.Speaking" text="Start Speaking"
+              description="Start responding to speech input from the microphone.">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt s"/>
+      </action>
+    </group>
   </actions>
 </idea-plugin>

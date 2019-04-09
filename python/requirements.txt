@@ -1,0 +1,9 @@
+deepspeech~=0.4.1
+pyaudio~=0.2.11
+webrtcvad~=2.0.10
+halo~=0.0.18
+numpy~=1.15.1
+scipy~=1.2.1
+grpcio~=1.19.0
+grpcio-tools~=1.19.0
+protobuf~=3.7.1

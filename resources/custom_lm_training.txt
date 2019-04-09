@@ -1,0 +1,77 @@
+escape
+paste line
+down a line
+insert mode
+command mode
+insert mode
+escape
+escape
+paste line
+insert mode
+down a line
+down a line
+yank line
+paste line
+yank line
+down a line
+up a line
+up a line
+paste line
+paste line
+command mode
+down a line
+up a line
+command mode
+down a line
+escape
+up a line
+down a line
+command mode
+yank line
+yank line
+command mode
+insert mode
+command mode
+down a line
+up a line
+insert mode
+escape
+insert mode
+yank line
+down a line
+yank line
+paste line
+up a line
+escape
+escape
+yank line
+up a line
+insert mode
+insert mode
+up a line
+insert mode
+down a line
+up a line
+escape
+down a line
+insert mode
+command mode
+escape
+up a line
+yank line
+command mode
+yank line
+insert mode
+paste line
+paste line
+escape
+paste line
+yank line
+up a line
+escape
+command mode
+paste line
+yank line
+paste line
+command mode
+command mode
