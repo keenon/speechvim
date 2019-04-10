@@ -8,6 +8,7 @@ import wave
 import webrtcvad
 from halo import Halo
 from scipy import signal
+from server import Server
 
 logging.basicConfig(level=20)
 
@@ -159,6 +160,9 @@ def main(ARGS):
         ARGS.lm = os.path.join(model_dir, ARGS.lm)
         ARGS.trie = os.path.join(model_dir, ARGS.trie)
 
+    print("Booting up server...")
+    server = Server()
+
     print('Initializing model...')
     logging.info("ARGS.model: %s", ARGS.model)
     logging.info("ARGS.alphabet: %s", ARGS.alphabet)
@@ -197,12 +201,7 @@ def main(ARGS):
             # logging.debug("streaming frame")
             model.feedAudioContent(stream_context, np.frombuffer(frame, np.int16))
             if ARGS.savewav: wav_data.extend(frame)
-            # TODO: target this
-            count += 1
-            if count % 100 == 0:
-                text = model.intermediateDecode(stream_context)
-                if len(text) > 0:
-                    print(text)
+            # text = model.intermediateDecode(stream_context)
         else:
             if spinner: spinner.stop()
             # logging.debug("end utterence")
@@ -210,8 +209,10 @@ def main(ARGS):
                 vad_audio.write_wav(os.path.join(ARGS.savewav, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
                 wav_data = bytearray()
             text = model.finishStream(stream_context)
-            print("Recognized: %s" % text)
-            stream_context = model.setupStream()
+            if len(text) > 0:
+                print("Recognized: %s" % text)
+                server.emit_utterance(text)
+                stream_context = model.setupStream()
 
 if __name__ == '__main__':
     BEAM_WIDTH = 500

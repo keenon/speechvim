@@ -21,7 +21,7 @@ option java_package = "io.github.keenon.voicecode";
 
 
 // Service that implements Google Cloud Speech API.
-service Speech {
+service DeepSpeech {
     // Performs bidirectional streaming speech recognition: receive results while
     // sending audio. This method is only available via the gRPC API (not REST).
     rpc SpeechStream (Request) returns (stream StreamingResult) {}
@@ -32,6 +32,6 @@ message Request {
 }
 
 message StreamingResult {
-    repeated string text = 1;
+    string text = 1;
 }
 

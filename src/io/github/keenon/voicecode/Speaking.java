@@ -36,7 +36,7 @@ public class Speaking extends AnAction {
   boolean toggled = false;
   private int toggleEpoch = 0; // For if we rapidly toggle on and off, make sure old threads still die
 
-  private final Queue<StreamingRecognizeResponse> audioResponses = new ArrayDeque<>();
+  private final Queue<String> audioResponses = new ArrayDeque<>();
 
   private static final String API_KEY = "AIzaSyD8tsiM0DqcUWT1WelGzHHSivRQ0nT3XyY";
 
@@ -45,7 +45,7 @@ public class Speaking extends AnAction {
   /**
    * This is the thread that manages reading from the microphone
    */
-  void audioThread(int epoch) {
+  void googleAudioThread(int epoch) {
 
     // Set up static configuration for speech recognition
 
@@ -118,7 +118,14 @@ public class Speaking extends AnAction {
           System.out.println("Got onNext() call");
 
           synchronized (audioResponses) {
-            audioResponses.add(streamingRecognizeResponse);
+            List<StreamingRecognitionResult> results = streamingRecognizeResponse.getResultsList();
+            for (StreamingRecognitionResult result : results) {
+              if (result.getIsFinal() && result.getAlternativesCount() > 0) {
+                String text = result.getAlternatives(0).getTranscript();
+                audioResponses.add(text);
+              }
+            }
+
             audioResponses.notifyAll();
           }
         }
@@ -186,6 +193,46 @@ public class Speaking extends AnAction {
     }
   }
 
+  private Optional<ManagedChannel> managedChannel = Optional.empty();
+
+  /**
+   * This is the thread that manages reading from the microphone
+   */
+  void startPythonAudio() {
+    System.out.println("Starting python audio channel");
+    managedChannel = Optional.of(ManagedChannelBuilder
+        .forAddress("localhost", 5109)
+        .usePlaintext(true)
+        .build());
+    DeepSpeechGrpc.DeepSpeechStub stub = DeepSpeechGrpc.newStub(managedChannel.get());
+
+    stub.speechStream(Request.newBuilder().build(), new StreamObserver<StreamingResult>() {
+      @Override
+      public void onNext(StreamingResult value) {
+        System.out.println("Got python audio recognition: \""+value.getText()+"\"");
+        synchronized (audioResponses) {
+          audioResponses.add(value.getText());
+          audioResponses.notifyAll();
+        }
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        t.printStackTrace();
+      }
+
+      @Override
+      public void onCompleted() {
+        System.out.println("Completed");
+      }
+    });
+  }
+
+  void endPythonAudio() {
+    managedChannel.get().shutdown();
+    managedChannel = Optional.empty();
+  }
+
   /**
    * This is the thread that consumes from the speech recognition queue
    */
@@ -212,6 +259,11 @@ public class Speaking extends AnAction {
     }
   }
 
+  private void handleKey(KeyStroke key) {
+    Editor editor = EditorFactory.getInstance().getAllEditors()[0];
+    KeyHandler.getInstance().handleKey(editor, key, DataContext.EMPTY_CONTEXT);
+  }
+
   /**
    * This executes with a write lock for all of IDEA, so it has to be fast, or we'll freeze the editor.
    */
@@ -219,12 +271,14 @@ public class Speaking extends AnAction {
 
     // Get the latest streaming response, if any are present
 
-    StreamingRecognizeResponse recognitionResult;
+    String text;
     synchronized (audioResponses) {
       if (audioResponses.size() == 0) return;
 
-      recognitionResult = audioResponses.poll();
+      text = audioResponses.poll();
     }
+
+    System.out.println("Processing \""+text+"\"");
 
     // Get handles on every IDE object that we care about
 
@@ -235,38 +289,39 @@ public class Speaking extends AnAction {
 
     // Pass along the transcription as keystrokes
 
-    List<StreamingRecognitionResult> results = recognitionResult.getResultsList();
-    for (StreamingRecognitionResult result : results) {
-      if (result.getIsFinal() && result.getAlternativesCount() > 0) {
-        String text = result.getAlternatives(0).getTranscript();
-        if (text.trim().equalsIgnoreCase("escape")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke("escape"), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("insert")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("insert new line")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("move down")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("move up")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("copy line")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
-        }
-        else if (text.trim().equalsIgnoreCase("paste line")) {
-          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), DataContext.EMPTY_CONTEXT);
-        }
-        else {
-          System.out.println("Transcribing: \""+text+"\"");
-          for (int i = 0; i < text.length(); i++) {
-            KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(text.charAt(i)), DataContext.EMPTY_CONTEXT);
-          }
-        }
+    if (text.trim().contains("escape")) {
+      System.out.println("Pressing \"escape\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke("escape"), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("insert")) {
+      System.out.println("Pressing \"i\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("insert new line")) {
+      System.out.println("Pressing \"o\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("down")) {
+      System.out.println("Pressing \"j\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("up")) {
+      System.out.println("Pressing \"k\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("copy")) {
+      System.out.println("Pressing \"yy\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
+    }
+    else if (text.trim().contains("paste")) {
+      System.out.println("Pressing \"p\"");
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), DataContext.EMPTY_CONTEXT);
+    }
+    else {
+      System.out.println("Transcribing: \""+text+"\"");
+      for (int i = 0; i < text.length(); i++) {
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(text.charAt(i)), DataContext.EMPTY_CONTEXT);
       }
     }
 
@@ -336,10 +391,12 @@ public class Speaking extends AnAction {
 
       // Spawn the audio thread to read from the microphone and add to the producer thread
 
-      new Thread(() -> audioThread(toggleEpoch)).start();
+      // new Thread(() -> googleAudioThread(toggleEpoch)).start();
+      startPythonAudio();
     }
     else {
       Notifications.Bus.notify(new Notification("Voicecode", "Voicecode deactivated", "You will not be transcribed", NotificationType.INFORMATION));
+      endPythonAudio();
     }
   }
 

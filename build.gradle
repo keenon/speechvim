@@ -41,7 +41,6 @@ if (osdetector.os == "linux" && osdetector.release.isLike("fedora")) {
 
 dependencies {
   compile 'io.netty:netty-tcnative-boringssl-static:2.0.6.Final:' + tcnative_classifier
-  // compile 'io.netty:netty-tcnative:2.0.6.Final:' + tcnative_classifier
 }
 
 // Set up the IntelliJ plugin building
