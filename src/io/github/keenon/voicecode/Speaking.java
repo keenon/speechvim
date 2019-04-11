@@ -19,9 +19,13 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.maddyhome.idea.vim.KeyHandler;
+import com.maddyhome.idea.vim.helper.EditorDataContext;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import io.github.keenon.voicecode.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -291,37 +295,37 @@ public class Speaking extends AnAction {
 
     if (text.trim().contains("escape")) {
       System.out.println("Pressing \"escape\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke("escape"), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke("escape"), new EditorDataContext(editor));
     }
     else if (text.trim().contains("insert")) {
       System.out.println("Pressing \"i\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), new EditorDataContext(editor));
     }
     else if (text.trim().contains("insert new line")) {
       System.out.println("Pressing \"o\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), new EditorDataContext(editor));
     }
     else if (text.trim().contains("down")) {
       System.out.println("Pressing \"j\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), new EditorDataContext(editor));
     }
     else if (text.trim().contains("up")) {
       System.out.println("Pressing \"k\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), new EditorDataContext(editor));
     }
     else if (text.trim().contains("copy")) {
       System.out.println("Pressing \"yy\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
     }
     else if (text.trim().contains("paste")) {
       System.out.println("Pressing \"p\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), DataContext.EMPTY_CONTEXT);
+      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), new EditorDataContext(editor));
     }
     else {
       System.out.println("Transcribing: \""+text+"\"");
       for (int i = 0; i < text.length(); i++) {
-        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(text.charAt(i)), DataContext.EMPTY_CONTEXT);
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(text.charAt(i)), new EditorDataContext(editor));
       }
     }
 

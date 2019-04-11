@@ -48,7 +48,8 @@ dependencies {
 sourceSets {
   main {
     java.srcDir 'src'
-    java.srcDir 'gen'
+    java.srcDir 'gen/main/grpc'
+    java.srcDir 'gen/main/java'
     proto.srcDir 'proto'
     resources.srcDir 'resources'
   }
