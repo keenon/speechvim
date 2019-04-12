@@ -19,6 +19,8 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.maddyhome.idea.vim.KeyHandler;
+import com.maddyhome.idea.vim.command.CommandState;
+import com.maddyhome.idea.vim.extension.VimExtension;
 import com.maddyhome.idea.vim.helper.EditorDataContext;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -29,6 +31,7 @@ import io.github.keenon.voicecode.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 /**
@@ -268,6 +271,8 @@ public class Speaking extends AnAction {
     KeyHandler.getInstance().handleKey(editor, key, DataContext.EMPTY_CONTEXT);
   }
 
+  private static final KeyStroke escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+
   /**
    * This executes with a write lock for all of IDEA, so it has to be fast, or we'll freeze the editor.
    */
@@ -288,37 +293,38 @@ public class Speaking extends AnAction {
 
     Project project = ProjectManager.getInstance().getOpenProjects()[0];
     Editor editor = EditorFactory.getInstance().getAllEditors()[0];
+    final CommandState editorState = CommandState.getInstance(editor);
 
     if (editor == null) return;
 
     // Pass along the transcription as keystrokes
 
-    if (text.trim().contains("escape")) {
+    if (text.trim().contains("escape") && editorState.getMode() == CommandState.Mode.INSERT) {
       System.out.println("Pressing \"escape\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke("escape"), new EditorDataContext(editor));
+      KeyHandler.getInstance().handleKey(editor, escapeStroke, new EditorDataContext(editor));
     }
-    else if (text.trim().contains("insert")) {
+    else if (text.trim().contains("insert") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"i\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), new EditorDataContext(editor));
     }
-    else if (text.trim().contains("insert new line")) {
+    else if (text.trim().contains("insert new line") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"o\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), new EditorDataContext(editor));
     }
-    else if (text.trim().contains("down")) {
+    else if (text.trim().contains("down") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"j\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), new EditorDataContext(editor));
     }
-    else if (text.trim().contains("up")) {
+    else if (text.trim().contains("up") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"k\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), new EditorDataContext(editor));
     }
-    else if (text.trim().contains("copy")) {
+    else if (text.trim().contains("copy") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"yy\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
     }
-    else if (text.trim().contains("paste")) {
+    else if (text.trim().contains("paste") && editorState.getMode() == CommandState.Mode.COMMAND) {
       System.out.println("Pressing \"p\"");
       KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), new EditorDataContext(editor));
     }

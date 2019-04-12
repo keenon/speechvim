@@ -155,7 +155,7 @@ def main(ARGS):
     # Load DeepSpeech model
     if os.path.isdir(ARGS.model):
         model_dir = ARGS.model
-        ARGS.model = os.path.join(model_dir, 'output_graph.pb')
+        ARGS.model = os.path.join(model_dir, 'custom_lm_output_graph.pb')
         ARGS.alphabet = os.path.join(model_dir, ARGS.alphabet if ARGS.alphabet else 'alphabet.txt')
         ARGS.lm = os.path.join(model_dir, ARGS.lm)
         ARGS.trie = os.path.join(model_dir, ARGS.trie)
@@ -178,8 +178,6 @@ def main(ARGS):
                          input_rate=ARGS.rate)
 
     # Stream from microphone to DeepSpeech using VAD
-    spinner = None
-    # if not ARGS.nospinner: spinner = Halo(spinner='line')
     stream_context = model.setupStream()
     wav_data = bytearray()
 
@@ -194,21 +192,13 @@ def main(ARGS):
     frames = vad_audio.vad_collector()
     # frames = audio.frame_generator()
 
-    count = 0
     for frame in frames:
         if frame is not None:
-            if spinner: spinner.start()
-            # logging.debug("streaming frame")
             model.feedAudioContent(stream_context, np.frombuffer(frame, np.int16))
-            if ARGS.savewav: wav_data.extend(frame)
             # text = model.intermediateDecode(stream_context)
         else:
-            if spinner: spinner.stop()
-            # logging.debug("end utterence")
-            if ARGS.savewav:
-                vad_audio.write_wav(os.path.join(ARGS.savewav, datetime.now().strftime("savewav_%Y-%m-%d_%H-%M-%S_%f.wav")), wav_data)
-                wav_data = bytearray()
             text = model.finishStream(stream_context)
+            stream_context = model.setupStream()
             if len(text) > 0:
                 print("Recognized: %s" % text)
                 server.emit_utterance(text)
