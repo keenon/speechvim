@@ -16,6 +16,8 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private Request() {
+    enable_ = false;
+    insertMode_ = false;
   }
 
   @java.lang.Override
@@ -28,6 +30,7 @@ private static final long serialVersionUID = 0L;
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     this();
+    int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
     try {
@@ -43,6 +46,16 @@ private static final long serialVersionUID = 0L;
                 input, unknownFields, extensionRegistry, tag)) {
               done = true;
             }
+            break;
+          }
+          case 8: {
+
+            enable_ = input.readBool();
+            break;
+          }
+          case 16: {
+
+            insertMode_ = input.readBool();
             break;
           }
         }
@@ -69,6 +82,32 @@ private static final long serialVersionUID = 0L;
             io.github.keenon.voicecode.Request.class, io.github.keenon.voicecode.Request.Builder.class);
   }
 
+  public static final int ENABLE_FIELD_NUMBER = 1;
+  private boolean enable_;
+  /**
+   * <pre>
+   * If false, stop speech transcript for the moment
+   * </pre>
+   *
+   * <code>bool enable = 1;</code>
+   */
+  public boolean getEnable() {
+    return enable_;
+  }
+
+  public static final int INSERTMODE_FIELD_NUMBER = 2;
+  private boolean insertMode_;
+  /**
+   * <pre>
+   * If true, we need to switch language models to the insert mode models (unrestricted English)
+   * </pre>
+   *
+   * <code>bool insertMode = 2;</code>
+   */
+  public boolean getInsertMode() {
+    return insertMode_;
+  }
+
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -81,6 +120,12 @@ private static final long serialVersionUID = 0L;
 
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
+    if (enable_ != false) {
+      output.writeBool(1, enable_);
+    }
+    if (insertMode_ != false) {
+      output.writeBool(2, insertMode_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -89,6 +134,14 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
+    if (enable_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(1, enable_);
+    }
+    if (insertMode_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(2, insertMode_);
+    }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -105,6 +158,10 @@ private static final long serialVersionUID = 0L;
     io.github.keenon.voicecode.Request other = (io.github.keenon.voicecode.Request) obj;
 
     boolean result = true;
+    result = result && (getEnable()
+        == other.getEnable());
+    result = result && (getInsertMode()
+        == other.getInsertMode());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -116,6 +173,12 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
+    hash = (37 * hash) + ENABLE_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getEnable());
+    hash = (37 * hash) + INSERTMODE_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getInsertMode());
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -245,6 +308,10 @@ private static final long serialVersionUID = 0L;
     }
     public Builder clear() {
       super.clear();
+      enable_ = false;
+
+      insertMode_ = false;
+
       return this;
     }
 
@@ -267,6 +334,8 @@ private static final long serialVersionUID = 0L;
 
     public io.github.keenon.voicecode.Request buildPartial() {
       io.github.keenon.voicecode.Request result = new io.github.keenon.voicecode.Request(this);
+      result.enable_ = enable_;
+      result.insertMode_ = insertMode_;
       onBuilt();
       return result;
     }
@@ -308,6 +377,12 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(io.github.keenon.voicecode.Request other) {
       if (other == io.github.keenon.voicecode.Request.getDefaultInstance()) return this;
+      if (other.getEnable() != false) {
+        setEnable(other.getEnable());
+      }
+      if (other.getInsertMode() != false) {
+        setInsertMode(other.getInsertMode());
+      }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
       return this;
@@ -332,6 +407,82 @@ private static final long serialVersionUID = 0L;
           mergeFrom(parsedMessage);
         }
       }
+      return this;
+    }
+
+    private boolean enable_ ;
+    /**
+     * <pre>
+     * If false, stop speech transcript for the moment
+     * </pre>
+     *
+     * <code>bool enable = 1;</code>
+     */
+    public boolean getEnable() {
+      return enable_;
+    }
+    /**
+     * <pre>
+     * If false, stop speech transcript for the moment
+     * </pre>
+     *
+     * <code>bool enable = 1;</code>
+     */
+    public Builder setEnable(boolean value) {
+      
+      enable_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * If false, stop speech transcript for the moment
+     * </pre>
+     *
+     * <code>bool enable = 1;</code>
+     */
+    public Builder clearEnable() {
+      
+      enable_ = false;
+      onChanged();
+      return this;
+    }
+
+    private boolean insertMode_ ;
+    /**
+     * <pre>
+     * If true, we need to switch language models to the insert mode models (unrestricted English)
+     * </pre>
+     *
+     * <code>bool insertMode = 2;</code>
+     */
+    public boolean getInsertMode() {
+      return insertMode_;
+    }
+    /**
+     * <pre>
+     * If true, we need to switch language models to the insert mode models (unrestricted English)
+     * </pre>
+     *
+     * <code>bool insertMode = 2;</code>
+     */
+    public Builder setInsertMode(boolean value) {
+      
+      insertMode_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * If true, we need to switch language models to the insert mode models (unrestricted English)
+     * </pre>
+     *
+     * <code>bool insertMode = 2;</code>
+     */
+    public Builder clearInsertMode() {
+      
+      insertMode_ = false;
+      onChanged();
       return this;
     }
     public final Builder setUnknownFields(

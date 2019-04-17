@@ -16,4 +16,9 @@ public interface StreamingResultOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTextBytes();
+
+  /**
+   * <code>bool intermediate = 2;</code>
+   */
+  boolean getIntermediate();
 }

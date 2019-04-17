@@ -17,6 +17,7 @@ private static final long serialVersionUID = 0L;
   }
   private StreamingResult() {
     text_ = "";
+    intermediate_ = false;
   }
 
   @java.lang.Override
@@ -51,6 +52,11 @@ private static final long serialVersionUID = 0L;
             java.lang.String s = input.readStringRequireUtf8();
 
             text_ = s;
+            break;
+          }
+          case 16: {
+
+            intermediate_ = input.readBool();
             break;
           }
         }
@@ -111,6 +117,15 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int INTERMEDIATE_FIELD_NUMBER = 2;
+  private boolean intermediate_;
+  /**
+   * <code>bool intermediate = 2;</code>
+   */
+  public boolean getIntermediate() {
+    return intermediate_;
+  }
+
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -126,6 +141,9 @@ private static final long serialVersionUID = 0L;
     if (!getTextBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, text_);
     }
+    if (intermediate_ != false) {
+      output.writeBool(2, intermediate_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -136,6 +154,10 @@ private static final long serialVersionUID = 0L;
     size = 0;
     if (!getTextBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, text_);
+    }
+    if (intermediate_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(2, intermediate_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -155,6 +177,8 @@ private static final long serialVersionUID = 0L;
     boolean result = true;
     result = result && getText()
         .equals(other.getText());
+    result = result && (getIntermediate()
+        == other.getIntermediate());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -168,6 +192,9 @@ private static final long serialVersionUID = 0L;
     hash = (19 * hash) + getDescriptor().hashCode();
     hash = (37 * hash) + TEXT_FIELD_NUMBER;
     hash = (53 * hash) + getText().hashCode();
+    hash = (37 * hash) + INTERMEDIATE_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getIntermediate());
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -299,6 +326,8 @@ private static final long serialVersionUID = 0L;
       super.clear();
       text_ = "";
 
+      intermediate_ = false;
+
       return this;
     }
 
@@ -322,6 +351,7 @@ private static final long serialVersionUID = 0L;
     public io.github.keenon.voicecode.StreamingResult buildPartial() {
       io.github.keenon.voicecode.StreamingResult result = new io.github.keenon.voicecode.StreamingResult(this);
       result.text_ = text_;
+      result.intermediate_ = intermediate_;
       onBuilt();
       return result;
     }
@@ -366,6 +396,9 @@ private static final long serialVersionUID = 0L;
       if (!other.getText().isEmpty()) {
         text_ = other.text_;
         onChanged();
+      }
+      if (other.getIntermediate() != false) {
+        setIntermediate(other.getIntermediate());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -459,6 +492,32 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       text_ = value;
+      onChanged();
+      return this;
+    }
+
+    private boolean intermediate_ ;
+    /**
+     * <code>bool intermediate = 2;</code>
+     */
+    public boolean getIntermediate() {
+      return intermediate_;
+    }
+    /**
+     * <code>bool intermediate = 2;</code>
+     */
+    public Builder setIntermediate(boolean value) {
+      
+      intermediate_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>bool intermediate = 2;</code>
+     */
+    public Builder clearIntermediate() {
+      
+      intermediate_ = false;
       onChanged();
       return this;
     }

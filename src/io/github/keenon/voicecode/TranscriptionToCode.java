@@ -69,7 +69,7 @@ public class TranscriptionToCode {
     String[] parts = transcription.split(" ");
 
     List<String> allTypes = new ArrayList<>();
-    allTypes.addAll(classNames);
+    // allTypes.addAll(classNames);
     allTypes.add("ArrayList");
     allTypes.add("List");
     allTypes.add("StringBuilder");
@@ -84,6 +84,7 @@ public class TranscriptionToCode {
     // Types
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /*
     for (String type : allTypes) {
       final String finalType = type;
       String ruleName = "CLASS_"+GrammarRule.merge(GrammarRule.splitClassName(type), GrammarRule.GeneratedCase.SNAKE_CASE).toUpperCase();
@@ -95,6 +96,7 @@ public class TranscriptionToCode {
       });
       parser.addGrammarRule(GrammarRule.unaryRule(0.0, "CLASS", ruleName));
     }
+    */
     parser.addGrammarRules(GrammarRule.matchAnyLengthSequenceOf(-4.0, "CLASS_UNKNOWN", wildcardTokenPattern, GrammarRule.GeneratedCase.CLASS_CASE));
     parser.addGrammarRule(GrammarRule.unaryRule(0.0, "CLASS", "CLASS_UNKNOWN"));
 

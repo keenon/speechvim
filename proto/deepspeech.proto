@@ -28,10 +28,14 @@ service DeepSpeech {
 }
 
 message Request {
-
+    // If false, stop speech transcript for the moment
+    bool enable = 1;
+    // If true, we need to switch language models to the insert mode models (unrestricted English)
+    bool insertMode = 2;
 }
 
 message StreamingResult {
     string text = 1;
+    bool intermediate = 2;
 }
 

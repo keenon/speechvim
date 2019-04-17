@@ -33,11 +33,13 @@ public final class DeepSpeechProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\020deepspeech.proto\"\t\n\007Request\"\037\n\017Streami" +
-      "ngResult\022\014\n\004text\030\001 \001(\t2<\n\nDeepSpeech\022.\n\014" +
-      "SpeechStream\022\010.Request\032\020.StreamingResult" +
-      "\"\0000\001B2\n\032io.github.keenon.voicecodeB\017Deep" +
-      "SpeechProtoP\001\370\001\001b\006proto3"
+      "\n\020deepspeech.proto\"-\n\007Request\022\016\n\006enable\030" +
+      "\001 \001(\010\022\022\n\ninsertMode\030\002 \001(\010\"5\n\017StreamingRe" +
+      "sult\022\014\n\004text\030\001 \001(\t\022\024\n\014intermediate\030\002 \001(\010" +
+      "2<\n\nDeepSpeech\022.\n\014SpeechStream\022\010.Request" +
+      "\032\020.StreamingResult\"\0000\001B2\n\032io.github.keen" +
+      "on.voicecodeB\017DeepSpeechProtoP\001\370\001\001b\006prot" +
+      "o3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -56,13 +58,13 @@ public final class DeepSpeechProto {
     internal_static_Request_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Request_descriptor,
-        new java.lang.String[] { });
+        new java.lang.String[] { "Enable", "InsertMode", });
     internal_static_StreamingResult_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_StreamingResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StreamingResult_descriptor,
-        new java.lang.String[] { "Text", });
+        new java.lang.String[] { "Text", "Intermediate", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

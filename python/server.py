@@ -12,11 +12,13 @@ class GrpcDeepSpeechServicer(deepspeech_pb2_grpc.DeepSpeechServicer):
     def __init__(self):
         self.queue = Queue()
 
-    def emit_utterance(self, utterance: str):
-        result = StreamingResult(text=utterance)
+    def emit_utterance(self, utterance: str, intermediate: bool):
+        result = StreamingResult(text=utterance, intermediate=intermediate)
         self.queue.put(result)
 
     def SpeechStream(self, request, context):
+        print('New speech stream connected. Clearing queue')
+        self.queue = Queue()
         """Performs bidirectional streaming speech recognition: receive results while
         sending audio. This method is only available via the gRPC API (not REST).
         """
@@ -39,5 +41,5 @@ class Server:
         self.grpc_server.add_insecure_port("[::]:{port}".format(port=5109))
         self.grpc_server.start()
 
-    def emit_utterance(self, utterance: str):
-        self.speech_stub.emit_utterance(utterance)
+    def emit_utterance(self, utterance: str, intermediate: bool):
+        self.speech_stub.emit_utterance(utterance, intermediate)

@@ -192,16 +192,23 @@ def main(ARGS):
     frames = vad_audio.vad_collector()
     # frames = audio.frame_generator()
 
+    count = 0
     for frame in frames:
         if frame is not None:
             model.feedAudioContent(stream_context, np.frombuffer(frame, np.int16))
-            # text = model.intermediateDecode(stream_context)
+            count += 1
+            if count > 20:
+                text = model.intermediateDecode(stream_context)
+                count = 0
+                if len(text) > 0:
+                    print("Intermediate recognition: %s" % text)
+                    server.emit_utterance(text, True)
         else:
             text = model.finishStream(stream_context)
             stream_context = model.setupStream()
             if len(text) > 0:
                 print("Recognized: %s" % text)
-                server.emit_utterance(text)
+                server.emit_utterance(text, False)
                 stream_context = model.setupStream()
 
 if __name__ == '__main__':

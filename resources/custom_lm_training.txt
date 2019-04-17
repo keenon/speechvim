@@ -75,3 +75,29 @@ yank line
 paste line
 command mode
 command mode
+hello world
+private static class audio response is
+public class speaking is
+public static void main is
+public static class audio response is
+string text semicolon
+string text equals quote hello world quote semicolon
+boolean intermediate value semicolon
+boolean active equals false semicolon
+private static class hello world is
+private static class pattern transcriber is
+private static class speaking is
+private static class streaming transcription is
+private static class transcription to code is
+private static class microphone streaming is
+private static class generate language model is
+private static class example class is
+string example variable equals quote testing quote semicolon
+string hello world equals quote a value quote semicolon
+string display name equals quote hello world quote semicolon
+string server id equals quote hello world quote semicolon
+string server name equals quote local host quote semicolon
+newline
+new line
+newline
+new line

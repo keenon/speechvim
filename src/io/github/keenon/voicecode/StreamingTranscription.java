@@ -24,7 +24,7 @@ public class StreamingTranscription {
    * This streams tokens from a raw transcription text
    */
   public synchronized void streamText(String text) {
-    streamTokens(text.split(" "));
+    streamTokens(text.trim().split(" "));
   }
 
   /**
@@ -47,23 +47,37 @@ public class StreamingTranscription {
    * parsing the expression.
    */
   public synchronized Optional<String> getParsedExpression(List<String> classNames) {
-    long TIMEOUT = 3000;
-    long startTime = System.currentTimeMillis();
-    // Go from largest to smallest, checking for a parse
-    for (int i = unparsedTokens.size(); i >= 1; i--) {
-      Optional<String> parse = TranscriptionToCode.translateTranscriptionWithGrammar(String.join(" ", unparsedTokens.subList(0, i)), classNames);
-      if (parse.isPresent()) {
-        unparsedTokens = unparsedTokens.subList(i, unparsedTokens.size());
-        return parse;
-      }
+    String[] pointer = new String[]{null};
 
-      if (System.currentTimeMillis() - startTime > TIMEOUT) {
-        System.err.println("Hit a timeout processing a parsed expression");
-        return Optional.empty();
+    Thread t = new Thread(() -> {
+      long TIMEOUT = 500;
+      long startTime = System.currentTimeMillis();
+      // Go from largest to smallest, checking for a parse
+      for (int i = unparsedTokens.size(); i >= 1; i--) {
+        Optional<String> parse = TranscriptionToCode.translateTranscriptionWithGrammar(String.join(" ", unparsedTokens.subList(0, i)), classNames);
+        if (parse.isPresent()) {
+          unparsedTokens = unparsedTokens.subList(i, unparsedTokens.size());
+          pointer[0] = parse.get();
+          break;
+        }
+
+        if (System.currentTimeMillis() - startTime > TIMEOUT) {
+          System.err.println("Hit a timeout processing a parsed expression");
+          break;
+        }
       }
+    }, "get-parsed-expression");
+    t.start();
+
+    try {
+      t.join(500);
+    } catch (InterruptedException e) {
+      System.out.println(Arrays.toString(t.getStackTrace()));
+      System.err.println("Hit a timeout processing a parsed expression");
+      e.printStackTrace();
     }
-    // Otherwise return empty
-    return Optional.empty();
+
+    return Optional.ofNullable(pointer[0]);
   }
 
   /**

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=_b('\n\032io.github.keenon.voicecodeB\017DeepSpeechProtoP\001\370\001\001'),
-  serialized_pb=_b('\n\x10\x64\x65\x65pspeech.proto\"\t\n\x07Request\"\x1f\n\x0fStreamingResult\x12\x0c\n\x04text\x18\x01 \x01(\t2<\n\nDeepSpeech\x12.\n\x0cSpeechStream\x12\x08.Request\x1a\x10.StreamingResult\"\x00\x30\x01\x42\x32\n\x1aio.github.keenon.voicecodeB\x0f\x44\x65\x65pSpeechProtoP\x01\xf8\x01\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x10\x64\x65\x65pspeech.proto\"\t\n\x07Request\"5\n\x0fStreamingResult\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x14\n\x0cintermediate\x18\x02 \x01(\x08\x32<\n\nDeepSpeech\x12.\n\x0cSpeechStream\x12\x08.Request\x1a\x10.StreamingResult\"\x00\x30\x01\x42\x32\n\x1aio.github.keenon.voicecodeB\x0f\x44\x65\x65pSpeechProtoP\x01\xf8\x01\x01\x62\x06proto3')
 )
 
 
@@ -63,6 +63,13 @@ _STREAMINGRESULT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='intermediate', full_name='StreamingResult.intermediate', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -76,7 +83,7 @@ _STREAMINGRESULT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=31,
-  serialized_end=62,
+  serialized_end=84,
 )
 
 DESCRIPTOR.message_types_by_name['Request'] = _REQUEST
@@ -106,8 +113,8 @@ _DEEPSPEECH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=64,
-  serialized_end=124,
+  serialized_start=86,
+  serialized_end=146,
   methods=[
   _descriptor.MethodDescriptor(
     name='SpeechStream',

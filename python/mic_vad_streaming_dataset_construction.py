@@ -156,11 +156,11 @@ def main(ARGS):
         if index >= len(content):
             break
         l = content[index].rstrip().lower()
-        print("Please say: \""+l+"\"")
         vad_audio.destroy()
         vad_audio = VADAudio(aggressiveness=ARGS.vad_aggressiveness)
         frames = vad_audio.vad_collector()
         print("Listening (ctrl-C to exit)...")
+        print("Please say: \""+l+"\"")
 
         # Stream from microphone to DeepSpeech using VAD
         started = False

@@ -21,6 +21,7 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import com.maddyhome.idea.vim.KeyHandler;
 import com.maddyhome.idea.vim.command.CommandState;
 import com.maddyhome.idea.vim.extension.VimExtension;
+import com.maddyhome.idea.vim.helper.CaretData;
 import com.maddyhome.idea.vim.helper.EditorDataContext;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -43,7 +44,17 @@ public class Speaking extends AnAction {
   boolean toggled = false;
   private int toggleEpoch = 0; // For if we rapidly toggle on and off, make sure old threads still die
 
-  private final Queue<String> audioResponses = new ArrayDeque<>();
+  private final Queue<AudioResponse> audioResponses = new ArrayDeque<>();
+
+  private static class AudioResponse {
+    String text;
+    boolean intermediate;
+
+    public AudioResponse(String text, boolean intermediate) {
+      this.text = text;
+      this.intermediate = intermediate;
+    }
+  }
 
   private static final String API_KEY = "AIzaSyD8tsiM0DqcUWT1WelGzHHSivRQ0nT3XyY";
 
@@ -127,9 +138,9 @@ public class Speaking extends AnAction {
           synchronized (audioResponses) {
             List<StreamingRecognitionResult> results = streamingRecognizeResponse.getResultsList();
             for (StreamingRecognitionResult result : results) {
-              if (result.getIsFinal() && result.getAlternativesCount() > 0) {
+              if (result.getAlternativesCount() > 0) {
                 String text = result.getAlternatives(0).getTranscript();
-                audioResponses.add(text);
+                audioResponses.add(new AudioResponse(text, !result.getIsFinal()));
               }
             }
 
@@ -218,7 +229,7 @@ public class Speaking extends AnAction {
       public void onNext(StreamingResult value) {
         System.out.println("Got python audio recognition: \""+value.getText()+"\"");
         synchronized (audioResponses) {
-          audioResponses.add(value.getText());
+          audioResponses.add(new AudioResponse(value.getText(), value.getIntermediate()));
           audioResponses.notifyAll();
         }
       }
@@ -272,6 +283,8 @@ public class Speaking extends AnAction {
   }
 
   private static final KeyStroke escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+  private static final KeyStroke returnStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+  private static final PatternTranscriber transcriber = new PatternTranscriber();
 
   /**
    * This executes with a write lock for all of IDEA, so it has to be fast, or we'll freeze the editor.
@@ -281,13 +294,15 @@ public class Speaking extends AnAction {
     // Get the latest streaming response, if any are present
 
     String text;
+    boolean intermediate;
+
     synchronized (audioResponses) {
       if (audioResponses.size() == 0) return;
 
-      text = audioResponses.poll();
+      AudioResponse audioResponse = audioResponses.poll();
+      text = audioResponse.text;
+      intermediate = audioResponse.intermediate;
     }
-
-    System.out.println("Processing \""+text+"\"");
 
     // Get handles on every IDE object that we care about
 
@@ -299,39 +314,71 @@ public class Speaking extends AnAction {
 
     // Pass along the transcription as keystrokes
 
-    if (text.trim().contains("escape") && editorState.getMode() == CommandState.Mode.INSERT) {
-      System.out.println("Pressing \"escape\"");
-      KeyHandler.getInstance().handleKey(editor, escapeStroke, new EditorDataContext(editor));
+    if (!intermediate) {
+      System.out.println("Processing \"" + text + "\"");
+
+      if (text.trim().contains("escape") && editorState.getMode() == CommandState.Mode.INSERT) {
+        System.out.println("Pressing \"escape\"");
+        KeyHandler.getInstance().handleKey(editor, escapeStroke, new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("insert") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"i\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("insert new line") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"o\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("down") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"j\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("up") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"k\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("copy") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"yy\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
+        return;
+      } else if (text.trim().contains("paste") && editorState.getMode() == CommandState.Mode.COMMAND) {
+        System.out.println("Pressing \"p\"");
+        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), new EditorDataContext(editor));
+        return;
+      }
     }
-    else if (text.trim().contains("insert") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"i\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('i'), new EditorDataContext(editor));
-    }
-    else if (text.trim().contains("insert new line") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"o\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('o'), new EditorDataContext(editor));
-    }
-    else if (text.trim().contains("down") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"j\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('j'), new EditorDataContext(editor));
-    }
-    else if (text.trim().contains("up") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"k\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('k'), new EditorDataContext(editor));
-    }
-    else if (text.trim().contains("copy") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"yy\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('y'), new EditorDataContext(editor));
-    }
-    else if (text.trim().contains("paste") && editorState.getMode() == CommandState.Mode.COMMAND) {
-      System.out.println("Pressing \"p\"");
-      KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke('p'), new EditorDataContext(editor));
-    }
-    else {
-      System.out.println("Transcribing: \""+text+"\"");
-      for (int i = 0; i < text.length(); i++) {
-        KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(text.charAt(i)), new EditorDataContext(editor));
+
+    // If we're in insert mode then work on transcribing this
+
+    if (editorState.getMode() == CommandState.Mode.INSERT) {
+      System.out.println("Transcribing (intermediate="+intermediate+"): \""+text+"\"");
+
+      // Escape is a reserved keyword, so don't transcribe that as an intermediate transcription
+      if (intermediate && text.trim().equalsIgnoreCase("escape")) return;
+
+      Caret primaryCaret = editor.getCaretModel().getPrimaryCaret();
+      int startOffset = primaryCaret.getSelectionStart();
+
+      String toType = transcriber.transcribe(text).orElse(text);
+
+      /*
+      if (!transcription.isPresent()) {
+        Notifications.Bus.notify(new Notification("Voicecode", "Failed to parse", streamingTranscription.getUnparsedTokens(), NotificationType.WARNING));
+      }
+      */
+
+      for (int i = 0; i < toType.length(); i++) {
+        if (toType.charAt(i) == '\n') {
+          KeyHandler.getInstance().handleKey(editor, returnStroke, new EditorDataContext(editor));
+        }
+        else {
+          KeyHandler.getInstance().handleKey(editor, KeyStroke.getKeyStroke(toType.charAt(i)), new EditorDataContext(editor));
+        }
+      }
+
+      if (intermediate) {
+        primaryCaret.setSelection(startOffset, primaryCaret.getOffset());
       }
     }
 

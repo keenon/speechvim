@@ -6,4 +6,22 @@ package io.github.keenon.voicecode;
 public interface RequestOrBuilder extends
     // @@protoc_insertion_point(interface_extends:Request)
     com.google.protobuf.MessageOrBuilder {
+
+  /**
+   * <pre>
+   * If false, stop speech transcript for the moment
+   * </pre>
+   *
+   * <code>bool enable = 1;</code>
+   */
+  boolean getEnable();
+
+  /**
+   * <pre>
+   * If true, we need to switch language models to the insert mode models (unrestricted English)
+   * </pre>
+   *
+   * <code>bool insertMode = 2;</code>
+   */
+  boolean getInsertMode();
 }
